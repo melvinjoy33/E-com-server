@@ -14,6 +14,8 @@ const CartSchema = new mongoose.Schema(
         },
       },
     ],
+    address:{type:Object, require:true},
+    status:{type:String, default:"pending"}
   },
   { timestamps: true }
 );
