@@ -27,15 +27,22 @@ module.exports = {
       const existingUser = await User.findOne({ email: signin.email });
       if (existingUser) {
         // resolve(existingUser);
-        bcrypt
-          .compare(signin.email, existingUser.email)
-          .then((userLogin) => {
-            resolve(userLogin);
-          })
-          .catch((error) => {
-            console.log("login:error", error);
-            reject(error);
-          });
+        bcrypt.compare(signin.email, existingUser.email).then((userLogin) => {
+          console.log("userLogin", userLogin);
+        //   resolve(userLogin);
+
+          console.log("existingUser", existingUser);
+          const { password, ...others } = existingUser;
+          console.log("other", others);
+          resolve(others);
+          // if(userLogin){
+
+          // }
+        });
+        //   .catch((error) => {
+        //     console.log("login:error", error);
+        //     reject(error);
+        //   });
       } else {
         reject("No user found");
       }
