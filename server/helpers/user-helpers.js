@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   doSignup: async (register, callback) => {
@@ -9,7 +10,6 @@ module.exports = {
       name: register.userName,
       email: register.email,
       password: register.password,
-      // isAdmin: register.isAdmin,
     });
 
     try {
@@ -23,14 +23,24 @@ module.exports = {
   },
 
   doLogin: async (signin) => {
+    let response = {};
     return new Promise(async (resolve, reject) => {
       const existingUser = await User.findOne({ email: signin.email });
       if (existingUser) {
-        // resolve(existingUser);
         bcrypt
           .compare(signin.email, existingUser.email)
           .then((userLogin) => {
-            resolve(userLogin);
+            const { password, ...others } = existingUser._doc;
+            const accessToken = jwt.sign(
+              {
+                id: others._id,
+                isAdmin: others.isAdmin,
+              },
+              process.env.JWT_SEC,
+              { expiresIn: "3d" }
+            );
+            console.log("accessToken", accessToken);
+            resolve({...others,accessToken});
           })
           .catch((error) => {
             console.log("login:error", error);
