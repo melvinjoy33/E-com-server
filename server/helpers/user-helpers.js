@@ -9,7 +9,6 @@ module.exports = {
       name: register.userName,
       email: register.email,
       password: register.password,
-      // isAdmin: register.isAdmin,
     });
 
     try {
@@ -23,26 +22,20 @@ module.exports = {
   },
 
   doLogin: async (signin) => {
+    let response = {};
     return new Promise(async (resolve, reject) => {
       const existingUser = await User.findOne({ email: signin.email });
       if (existingUser) {
-        // resolve(existingUser);
-        bcrypt.compare(signin.email, existingUser.email).then((userLogin) => {
-          console.log("userLogin", userLogin);
-        //   resolve(userLogin);
-
-          console.log("existingUser", existingUser);
-          const { password, ...others } = existingUser;
-          console.log("other", others);
-          resolve(others);
-          // if(userLogin){
-
-          // }
-        });
-        //   .catch((error) => {
-        //     console.log("login:error", error);
-        //     reject(error);
-        //   });
+        bcrypt
+          .compare(signin.email, existingUser.email)
+          .then((userLogin) => {
+            const { password, ...others } = existingUser._doc;
+            resolve(others);
+          })
+          .catch((error) => {
+            console.log("login:error", error);
+            reject(error);
+          });
       } else {
         reject("No user found");
       }
