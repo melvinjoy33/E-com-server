@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   doSignup: async (register, callback) => {
@@ -30,7 +31,16 @@ module.exports = {
           .compare(signin.email, existingUser.email)
           .then((userLogin) => {
             const { password, ...others } = existingUser._doc;
-            resolve(others);
+            const accessToken = jwt.sign(
+              {
+                id: others._id,
+                isAdmin: others.isAdmin,
+              },
+              process.env.JWT_SEC,
+              { expiresIn: "3d" }
+            );
+            console.log("accessToken", accessToken);
+            resolve({...others,accessToken});
           })
           .catch((error) => {
             console.log("login:error", error);
