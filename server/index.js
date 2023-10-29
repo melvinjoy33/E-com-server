@@ -7,6 +7,7 @@ const port = 8585;
 
 //import routers
 const userRoute = require('./routes/user');
+const authUserRoute = require('./routes/auth');
 app.use(express.json());
 app.use(cors());
 
@@ -24,7 +25,7 @@ mongoose
 
 
 app.use('/api/user', userRoute);
-app.use('/api/adduser', userRoute);
+app.use('/api/adduser', authUserRoute);
 
 
 app.listen(port || 8585, () => console.log(`server is running in ${port}`));
