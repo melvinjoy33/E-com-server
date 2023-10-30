@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 module.exports = {
   doSignup: async (register, callback) => {
+    console.log("register", register);
     register.password = await bcrypt.hash(register.password, 10);
 
     const newUser = new User({
@@ -23,7 +24,6 @@ module.exports = {
   },
 
   doLogin: async (signin) => {
-    let response = {};
     return new Promise(async (resolve, reject) => {
       const existingUser = await User.findOne({ email: signin.email });
       if (existingUser) {
@@ -40,7 +40,7 @@ module.exports = {
               { expiresIn: "3d" }
             );
             console.log("accessToken", accessToken);
-            resolve({...others,accessToken});
+            resolve({ ...others, accessToken });
           })
           .catch((error) => {
             console.log("login:error", error);
@@ -48,6 +48,54 @@ module.exports = {
           });
       } else {
         reject("No user found");
+      }
+    });
+  },
+
+  updatedUser: (req) => {
+    return new Promise(async (resolve, reject) => {
+      console.log("updateData", updateData);
+      await User.findByIdAndUpdate(
+        req.params.id,
+        {
+          //   $set: req.body,
+          ...req.body,
+        },
+        { new: true }
+      )
+        .then((resp) => {
+          resolve(resp);
+        })
+        .catch((error) => {
+          console.log("error: updated user", error);
+          reject(error);
+        });
+    });
+  },
+
+  deleteUser: (req) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await User.findByIdAndDelete(req.body.params);
+        resolve(response);
+      } catch (error) {
+        console.log("error:Delete", error);
+        reject(error);
+      }
+    });
+  },
+
+  getUser: (req) => {
+    console.log("req.body.params", req.body.params);
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await User.findById(req.body.params);
+        console.log("response", response);
+        const { password, ...others } = response._doc;
+        resolve(others);
+      } catch (error) {
+        console.log("error:Delete", error);
+        reject(error);
       }
     });
   },
